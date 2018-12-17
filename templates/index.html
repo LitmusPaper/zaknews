@@ -1,0 +1,153 @@
+{% extends "layout.html" %}
+{% load static %}
+{% block kod %}
+<link rel="stylesheet" href="{% static 'jquery-ui/jquery-ui.css' %}">
+<style>
+
+        .crop img {
+       height: 180px;
+       object-fit: cover;
+       width: 100%;
+       }
+       </style>
+       
+{% endblock kod %}
+
+{% block body %}
+<div class="row">
+      
+    <div class="col-12">
+                <form method="GET">
+            <div class="input-group mb-3 input-group-lg">
+                <input id="search" type="text" name="term" class="form-control"
+                {% if request.GET.term %}
+                value="{{request.GET.term}}"
+                {% endif %} placeholder="Axtar..." autocomplete="off" aria-label="Axtar" aria-describedby="basic-addon2">
+                <div class="input-group-append">
+                    <button class="btn btn-outline-secondary" type="submit">Axtar</button>
+                </div>
+            </div>
+        </form>
+            {% if request.user.is_authenticated %}
+            <a href="{% url 'article:add' %}" class="d-block d-md-none btn btn-info mb-4">Məqalə yaz</a>
+            {% endif %}
+    </div> <!-- col-12 -->
+    <div class="col-md-8"> <!-- posts side -->
+        {% if TagName %}
+            <h2> <span class="badge badge-info">{{TagName}}</span></h2>
+        {% endif %}
+        
+        <div class="row">
+{% for article in articles  %}
+        <div class="col-12">
+            <div class="card mb-4">
+            <div class="crop">
+                <img class="card-img-top" src="{{article.get_img_or_default}}" alt="Card image cap">
+            </div>
+            <div class="card-body">
+                    {% for tag in article.tags.all|slice:":3" %}
+                    <span class="badge badge-info">{{tag}}</span>
+                    {% endfor %}
+                    <h5 class="card-title">{{article.title}}</h5>
+                <p class="card-text"> 
+                    
+                    {{article.content|striptags|truncatewords:40|safe}} 
+                </p>
+                <!-- <p class="card-text">
+                    <small class="text-muted">
+                        {{article.created_date|timesince}} əvvəl 
+                        <a href="{% url 'user:dashboard' %}">{{article.author.username}}</a> yazıb
+                    </small>
+                </p> -->
+            </div>
+                <div class="card-footer clearfix">
+                <small class="text-muted float-left">
+                    {{article.created_date|timesince}} əvvəl 
+                   <a href="{% url 'user:dashboard' %}">{{article.author.username}}</a> yazıb
+                </small>
+                    <a href="{% url 'article:detail' article.id article.slug %}" class="btn btn-info float-right">Ətraflı</a>
+            </div>      
+        </div> <!-- card -->
+    </div> <!-- col-12 -->
+    {% empty%}
+    <div class="col-12">
+        <div class="alert alert-warning d-block">Məqalə yoxdur</div>
+    </div>
+{% endfor %}
+    </div> <!-- row -->
+
+<!-- pagination -->
+{% if articles.has_other_pages %}
+<hr>
+<nav aria-label="pagination">
+        <ul class="pagination">
+            {% if articles.has_previous %}
+          <li class="page-item">
+            <a class="page-link" href="?page={{articles.previous_page_number}}{% if request.GET.term %}&term={{request.GET.term}}{% endif %}" tabindex="-1">&laquo;</a>
+          </li>
+            {% endif %}
+            {% for page in articles.paginator.page_range %}
+            {% if articles.number == page %}
+            <li class="page-item active">
+                <span class="page-link">
+            {{articles.number}}
+        </span>
+          </li>
+            {% else %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{page}}{% if request.GET.term %}&term={{request.GET.term}}{% endif %}">{{page}}</a>
+            </li>
+            {% endif %}
+            
+            {% endfor %}
+          
+          {% if articles.has_next %}
+          <li class="page-item">
+            <a class="page-link" href="?page={{articles.next_page_number}}{% if request.GET.q %}&q={{request.GET.q}}{% endif %}">&raquo;</a>
+          </li>
+          
+          {% endif %}
+        </ul>
+      </nav>
+{% endif %}
+</div> <!-- post side -->
+<div class="col-md-4"> <!-- sidebars -->
+    {% if request.user.is_authenticated %}
+    <a href="{% url 'article:add' %}" class="d-none d-md-block btn btn-info mb-4 btn-lg">Məqalə yaz</a>
+    {% endif %}
+    <div class="card mb-4">
+        <div class="card-header">Taqlar</div>
+        <div class="card-body">
+            <div class="row">
+                {% for tag in tags %}
+                <div class="col-6 col-md-12 col-lg-6">
+                    <a href="{% url 'tags' tag.slug %}" class="btn btn-info my-1 d-block">
+                        {{tag.name}} <span class="badge badge-light">{{tag.article_set.all|length}}</span>
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+            </div>
+        </div>
+    </div>
+</div><!-- row -->
+        
+
+{% endblock body %}
+{% block endkod %}
+<script src="{% static 'jquery-ui/jquery-ui.js' %}"></script>
+    
+<script>
+  $(document).ready(function(){
+    
+    $( "#search" ).autocomplete({
+      source: '/search',
+      select: function(event,ui){
+        window.location.href = '/article/' + ui.item.id
+      },
+      minLength: 2
+    });
+  } );
+  </script>
+
+{% endblock endkod %}

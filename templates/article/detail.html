@@ -1,0 +1,82 @@
+{% extends "layout.html" %}
+{% load static%}
+
+{% block kod %}
+<style>
+
+ .crop img {
+height: 300px;
+object-fit: cover;
+width: 100%;
+}
+</style>
+
+{% endblock kod %}
+
+
+{% block body %}
+
+    <h1> {{article.title}}</h1>
+    <p class="lead">
+        <a href="/user">{{article.author.username}}</a> yazıb
+    </p>
+    <hr>
+    <p> {{article.created_date|timesince}} əvvəl paylaşılıb
+        {% if perms.article.change_article or article.author == request.user %}
+        <a href="{% url 'article:edit' article.id %}" class="btn btn-info btn-sm">Dəyiş</a>
+        {% endif %}
+        {% if perms.article.delete_article or article.author == request.user %}
+        <a href="{% url 'article:delete' article.id %}" class="btn btn-danger btn-sm">Sil</a>
+        {% else %}
+        {% endif %}
+    </p>
+    <hr>
+    {% for tag in article.tags.all %}
+    <h4 class="d-inline"><a href="{% url 'tags' tag.slug %}" class="badge badge-info">{{tag.name}}</a></h4>
+    {% endfor %}
+    <hr>
+    {% if article.image %}
+    <div class="crop">
+    <img class="img-fluid rounded mx-auto d-block" src="{{article.image.url}}" alt="{{article.title}}">
+</div>
+    <hr>
+    {% endif %}
+    <div class="">
+        {{article.content|safe}}
+    </div>
+
+    {% if request.user.is_authenticated %}
+    <div class="card my-4">
+        <div class="card-header">Şərh Yaz</div>
+        <div class="card-body">
+            {% load crispy_forms_tags %}
+            <form id='comment' method="post">
+                {% csrf_token %}
+                {{form.media}}
+                {% crispy form %}
+            </form>
+            <button class="btn btn-success" id="subcomment">Göndər</button>
+        </div> <!-- card body -->
+    </div> <!-- card -->
+    {% else %}
+    <div class="alert alert-warning">
+        Şərh yazmaq üçün daxil olmalısız.
+    </div>
+    {% endif %}
+    {% for comment in article.comments.all  %}
+    <div class="media mb-4">
+            <img class="d-flex mr-3 rounded-circle" src="http://placehold.it/50x50" alt="">
+            <div class="media-body">
+              <h5 class="mt-0">{{comment.author}}</h5>
+              {{comment.content}}
+            </div>
+          </div>
+          {%empty%}
+          <div class="alert alert-warning">
+                Şərh yoxdur.
+        </div>
+    {% endfor %}
+{% endblock body %}
+{% block endkod %}
+<script src="{% static 'detail.js' %}"></script>
+{% endblock endkod %}

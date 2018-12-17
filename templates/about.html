@@ -1,0 +1,57 @@
+{% extends "layout.html" %}
+
+{% block body %}
+ {% comment %} <div id="app">
+     [[term]] <br>
+        <input v-model="term">
+    <p v-for="(article,index) in articles">
+        [[article.label]] <br>
+        [[article]] <br>                
+        [[index]] <br>
+        <br>
+    </p> 
+</div> {% endcomment %}
+<div class="display-4 text-center">Zakir Abdullayev</div>
+<hr>
+<div class="text-center">
+<p>
+    1997-ci il İyul ayının 19-u Mingəçevir şəhərində dünyaya gəlmişəm. 2015-ci ildə 
+    <abbr title="Azərbaycan Texniki Universiteti" class="initialism">AzTU</abbr>-nun İstilik Energetikası Mühəndisliyi ixtisasına qəbul olmuşam
+    və burda təhsilimi davam etdirməkdəyəm.
+</p>
+<p>
+    Uşaqlıqdan bəri Kompyuterlərə və dolayısıyla proqramlaşdırmaya marağım olub və 14 yaşımdan özüm öyrənməyə başlamışam.
+    Bu öyrənmə müddətində çoxlu qısa və uzun fasilələr olub. Motivasiya azlığı, abituriyentlik və s. bunların səbəbidir.
+    2018-ci ildən Python proqramlaşdırma dilini və bu dilə aid əlavə modulları öyrənirəm. 
+</p>
+
+</div>
+{% endblock body %}
+
+
+
+{% comment %} {% block endkod %}
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<script>
+    var url = "/search/?term=";
+    var app = new Vue({
+        delimiters: ['[[', ']]'],
+        el: '#app',
+        data: {
+          articles: [],
+          term:'axtar',
+        },
+        
+        mounted() {
+            
+            axios.get(url + this.term).then(response => {
+              this.articles = response.data
+            })
+          }
+      })
+</script>
+
+{% endblock endkod %} {% endcomment %}
+

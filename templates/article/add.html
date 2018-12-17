@@ -1,0 +1,15 @@
+{% extends "layout.html" %}
+
+{% block body %}
+<div class="display-4"> Məqalə yaz</div>
+<hr>
+{% load crispy_forms_tags %}
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{form.media}}
+    {{form|crispy}}
+    <button type="submit" class="btn btn-success">Əlavə et</button>
+</form>
+
+
+{% endblock body %}
